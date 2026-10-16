@@ -1,0 +1,117 @@
+// Read Smart AI database schema.
+// Mirrors the data that currently lives on-device in the mobile Zustand stores
+// (notebook, library, reading progress, meaning cache, streak) so it can be
+// synced per user. See mobile/src/types/index.ts and mobile/src/store/*.
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum Difficulty {
+  beginner
+  intermediate
+  advanced
+}
+
+model User {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  passwordHash String
+  displayName  String?
+  // Daily streak, mirrors mobile settingsStore (lastActiveDay = "YYYY-MM-DD").
+  streak       Int      @default(0)
+  lastActiveDay String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  refreshTokens RefreshToken[]
+  books         Book[]
+  progress      ReadingProgress[]
+  notebook      NotebookEntry[]
+}
+
+// One row per issued refresh token (stored hashed) so tokens can be rotated
+// and revoked on logout.
+model RefreshToken {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  tokenHash String   @unique
+  expiresAt DateTime
+  revoked   Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+}
+
+// An uploaded book. Pages are stored as JSON (the app always loads a whole
+// book); normalize into a Page table later if pagination queries are needed.
+// Page shape: { title: string; author?: string; lines: string[] }.
+model Book {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  title     String
+  author    String   @default("Uploaded")
+  emoji     String   @default("📄")
+  isSample  Boolean  @default(false)
+  pages     Json
+  createdAt DateTime @default(now())
+
+  progress ReadingProgress[]
+
+  @@index([userId])
+}
+
+// Replaces the mobile `progress` map (bookId -> pageIndex). The most recently
+// opened row (max lastOpenedAt) is the equivalent of `lastBookId`.
+model ReadingProgress {
+  id           String   @id @default(cuid())
+  userId       String
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  bookId       String
+  book         Book     @relation(fields: [bookId], references: [id], onDelete: Cascade)
+  pageIndex    Int      @default(0)
+  lastOpenedAt DateTime @updatedAt
+
+  @@unique([userId, bookId])
+  @@index([userId])
+}
+
+// A saved vocab word. Maps mobile NotebookEntry: `book` -> bookTitle,
+// `date` -> createdAt.
+model NotebookEntry {
+  id           String     @id @default(cuid())
+  userId       String
+  user         User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  word         String
+  meaning      String
+  hindi        String
+  pronunciation String
+  difficulty   Difficulty
+  synonyms     String[]
+  example      String
+  bookTitle    String
+  page         Int
+  createdAt    DateTime   @default(now())
+
+  @@index([userId])
+}
+
+// Global, cross-user cache of Gemini word lookups so the same word+line is
+// never re-generated. `payload` holds the full WordMeaning. `cacheKey` uses the
+// same formula as mobile/src/store/meaningCache.ts.
+model MeaningCache {
+  id        String   @id @default(cuid())
+  cacheKey  String   @unique
+  word      String
+  line      String
+  payload   Json
+  hitCount  Int      @default(0)
+  createdAt DateTime @default(now())
+}

@@ -1,4 +1,5 @@
 import { router } from 'expo-router';
+import { ArrowRight, Bookmark, Moon, Sun, TriangleAlert } from 'lucide-react-native';
 import { useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -10,6 +11,7 @@ import { pickFile, uploadBook } from '@/services/books';
 import { useAllBooks, useLibrary } from '@/store/libraryStore';
 import { useNotebook } from '@/store/notebookStore';
 import { useSettings } from '@/store/settingsStore';
+import { islandSoft } from '@/theme/shape';
 import { fonts } from '@/theme/typography';
 
 export default function HomeScreen() {
@@ -40,14 +42,15 @@ export default function HomeScreen() {
 
   return (
     <SafeAreaView edges={['top']} style={{ flex: 1, backgroundColor: t.bg }}>
-      <View style={[styles.header, { backgroundColor: t.card, borderBottomColor: t.border }]}>
+      <View style={[styles.header, islandSoft, { backgroundColor: t.card, borderBottomColor: t.border }]}>
         <View style={styles.titleRow}>
           <View>
             <Text style={[styles.kicker, { color: t.accent }]}>Smart Reader</Text>
             <Text style={[styles.title, { color: t.text }]}>Read Smart AI</Text>
           </View>
           <Pressable onPress={toggleDark} style={[styles.toggle, { backgroundColor: t.accentL, borderColor: t.accent + '33' }]}>
-            <Text style={{ color: t.accent, fontSize: 12, fontWeight: '700' }}>{isDark ? '☀️ Light' : '🌙 Dark'}</Text>
+            {isDark ? <Sun color={t.accent} size={14} strokeWidth={2.25} /> : <Moon color={t.accent} size={14} strokeWidth={2.25} />}
+            <Text style={{ color: t.accent, fontSize: 12, fontWeight: '700' }}>{isDark ? 'Light' : 'Dark'}</Text>
           </Pressable>
         </View>
         <StatsRow streak={streak} words={words.length} books={books.length} />
@@ -56,7 +59,10 @@ export default function HomeScreen() {
       <ScrollView contentContainerStyle={{ padding: 16, gap: 16 }}>
         <UploadBox uploading={uploading} onPress={handleUpload} />
         {error && (
-          <Text style={[styles.error, { backgroundColor: t.dangerL, color: t.danger }]}>⚠️ {error}</Text>
+          <View style={[styles.error, { backgroundColor: t.dangerL }]}>
+            <TriangleAlert color={t.danger} size={16} strokeWidth={2.25} />
+            <Text style={{ flex: 1, color: t.danger, fontSize: 12 }}>{error}</Text>
+          </View>
         )}
 
         <Text style={[styles.section, { color: t.accent }]}>Library</Text>
@@ -77,8 +83,14 @@ export default function HomeScreen() {
             style={[styles.saved, { backgroundColor: t.yellowL, borderColor: t.yellow + '28' }]}
           >
             <View style={[styles.titleRow, { marginBottom: 7 }]}>
-              <Text style={{ fontSize: 12, fontWeight: '700', color: t.yellow }}>📚 Saved Words</Text>
-              <Text style={{ fontSize: 11, color: t.yellow }}>Sab dekho →</Text>
+              <View style={styles.savedTitle}>
+                <Bookmark color={t.yellow} size={14} strokeWidth={2.25} />
+                <Text style={{ fontSize: 12, fontWeight: '700', color: t.yellow }}>Saved Words</Text>
+              </View>
+              <View style={styles.savedTitle}>
+                <Text style={{ fontSize: 11, color: t.yellow }}>Sab dekho</Text>
+                <ArrowRight color={t.yellow} size={13} strokeWidth={2.25} />
+              </View>
             </View>
             <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 5 }}>
               {words.slice(0, 6).map((w) => (
@@ -97,9 +109,10 @@ const styles = StyleSheet.create({
   titleRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 13 },
   kicker: { fontSize: 10, fontWeight: '700', letterSpacing: 1, textTransform: 'uppercase' },
   title: { fontSize: 22, fontWeight: '800', fontFamily: fonts.heading },
-  toggle: { borderWidth: 1, borderRadius: 99, paddingHorizontal: 13, paddingVertical: 7 },
-  error: { borderRadius: 10, padding: 12, fontSize: 12, overflow: 'hidden' },
+  toggle: { flexDirection: 'row', alignItems: 'center', gap: 5, borderWidth: 1, borderRadius: 99, paddingHorizontal: 13, paddingVertical: 7 },
+  error: { flexDirection: 'row', alignItems: 'center', gap: 8, borderRadius: 10, padding: 12 },
   section: { fontSize: 11, fontWeight: '700', letterSpacing: 1, textTransform: 'uppercase' },
   saved: { borderWidth: 1, borderRadius: 13, padding: 13 },
+  savedTitle: { flexDirection: 'row', alignItems: 'center', gap: 5 },
   chip: { borderWidth: 1, borderRadius: 99, paddingHorizontal: 11, paddingVertical: 3, fontSize: 12, fontWeight: '600' },
 });

@@ -1,3 +1,4 @@
+import { Hourglass, Upload } from 'lucide-react-native';
 import { Pressable, StyleSheet, Text } from 'react-native';
 import { useTheme } from '@/hooks/useTheme';
 
@@ -12,7 +13,11 @@ export function UploadBox({ uploading, onPress }: { uploading: boolean; onPress:
         { borderColor: uploading ? t.green : t.border, backgroundColor: uploading ? t.greenL : t.card },
       ]}
     >
-      <Text style={{ fontSize: 32, marginBottom: 5 }}>{uploading ? '⏳' : '📤'}</Text>
+      {uploading ? (
+        <Hourglass color={t.green} size={30} strokeWidth={2} style={{ marginBottom: 8 }} />
+      ) : (
+        <Upload color={t.accent} size={30} strokeWidth={2} style={{ marginBottom: 8 }} />
+      )}
       <Text style={{ fontSize: 14, fontWeight: '700', color: t.text, marginBottom: 3 }}>
         {uploading ? 'Parsing kar raha hai…' : 'Apni Book Upload Karo'}
       </Text>

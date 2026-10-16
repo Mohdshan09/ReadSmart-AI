@@ -12,7 +12,7 @@ type Props = {
 };
 
 export function WordToken({ display, isActive, isSaved, isLoading, annotation, onPress }: Props) {
-  const { t, isDark } = useTheme();
+  const { t } = useTheme();
   return (
     <View>
       <Pressable onPress={onPress}>
@@ -21,7 +21,7 @@ export function WordToken({ display, isActive, isSaved, isLoading, annotation, o
             styles.word,
             { color: t.text },
             isSaved && { borderBottomWidth: 2, borderBottomColor: t.green },
-            isActive && { backgroundColor: '#FFD54F', color: '#1a1000', fontWeight: '600' },
+            isActive && { backgroundColor: t.highlight, color: t.highlightText, fontWeight: '600' },
           ]}
         >
           {display}
@@ -32,13 +32,10 @@ export function WordToken({ display, isActive, isSaved, isLoading, annotation, o
           pointerEvents="none"
           style={[
             styles.annot,
-            {
-              backgroundColor: isDark ? '#2d2400' : '#fff8e1',
-              borderColor: isDark ? '#f59e0b' : '#FFD54F',
-            },
+            { backgroundColor: t.highlight, borderColor: t.accent },
           ]}
         >
-          <Text style={{ fontSize: 11, fontStyle: 'italic', color: isDark ? '#fde68a' : '#5a3e00' }}>
+          <Text style={{ fontSize: 11, fontStyle: 'italic', color: t.highlightText }}>
             {isLoading ? '…' : annotation}
           </Text>
         </View>

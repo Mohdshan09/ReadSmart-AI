@@ -2,28 +2,35 @@ export type Theme = {
   bg: string; paper: string; card: string;
   text: string; sub: string; border: string;
   accent: string; accentL: string;
+  highlight: string; highlightText: string;
   yellow: string; yellowL: string;
   green: string; greenL: string;
   pink: string; pinkL: string;
   danger: string; dangerL: string;
 };
 
+// Excalidraw-inspired: a light neutral canvas, white "island" surfaces, and the
+// signature violet accent. Supporting colours use Open Color (Excalidraw's own
+// palette) so chips/badges feel part of the same system.
 export const light: Theme = {
-  bg: '#f5f0e8', paper: '#faf7f2', card: '#ffffff',
-  text: '#2c2416', sub: '#7a6f5e', border: '#e2d9c8',
-  accent: '#5046e4', accentL: '#5046e412',
-  yellow: '#c8820a', yellowL: '#fff8e1',
-  green: '#2e7d32', greenL: '#e8f5e9',
-  pink: '#b5175a', pinkL: '#fce4ec',
-  danger: '#991b1b', dangerL: '#fee2e2',
+  bg: '#f7f8fa', paper: '#ffffff', card: '#ffffff',
+  text: '#1b1b1f', sub: '#868e96', border: '#e9ecef',
+  accent: '#6965db', accentL: '#6965db14',
+  highlight: '#e0dfff', highlightText: '#2b2866',
+  yellow: '#f08c00', yellowL: '#fff9db',
+  green: '#2f9e44', greenL: '#ebfbee',
+  pink: '#e64980', pinkL: '#fff0f6',
+  danger: '#e03131', dangerL: '#fff5f5',
 };
 
+// Excalidraw dark theme: near-black canvas, #232329 islands, lightened violet.
 export const dark: Theme = {
-  bg: '#0e0b14', paper: '#161220', card: '#1e1a2e',
-  text: '#ede8ff', sub: '#8880a8', border: '#2d2845',
-  accent: '#7c6fff', accentL: '#7c6fff15',
-  yellow: '#f59e0b', yellowL: '#f59e0b12',
-  green: '#34d399', greenL: '#34d39912',
-  pink: '#f472b6', pinkL: '#f472b612',
-  danger: '#fca5a5', dangerL: '#7f1d1d40',
+  bg: '#121212', paper: '#232329', card: '#232329',
+  text: '#e3e3e8', sub: '#9a9aa5', border: '#31303b',
+  accent: '#a8a5ff', accentL: '#a8a5ff1a',
+  highlight: '#403d73', highlightText: '#ede8ff',
+  yellow: '#ffc93c', yellowL: '#ffc93c14',
+  green: '#51cf66', greenL: '#51cf6614',
+  pink: '#f783ac', pinkL: '#f783ac14',
+  danger: '#ff6b6b', dangerL: '#ff6b6b20',
 };

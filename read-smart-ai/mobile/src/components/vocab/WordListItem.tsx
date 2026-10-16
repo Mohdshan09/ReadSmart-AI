@@ -1,3 +1,4 @@
+import { BookOpen, Trash } from 'lucide-react-native';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { useTheme } from '@/hooks/useTheme';
 import { fonts } from '@/theme/typography';
@@ -24,9 +25,12 @@ export function WordListItem({ entry, onDelete }: { entry: NotebookEntry; onDele
         </View>
       )}
       <View style={[styles.row, { marginTop: 8 }]}>
-        <Text style={{ fontSize: 10, color: t.sub }}>📖 {entry.book} · pg {entry.page}</Text>
+        <View style={styles.meta}>
+          <BookOpen color={t.sub} size={12} strokeWidth={2} />
+          <Text style={{ fontSize: 10, color: t.sub }}>{entry.book} · pg {entry.page}</Text>
+        </View>
         <Pressable onPress={onDelete} hitSlop={10}>
-          <Text style={{ fontSize: 16 }}>🗑</Text>
+          <Trash color={t.danger} size={16} strokeWidth={2} />
         </Pressable>
       </View>
     </View>
@@ -38,4 +42,5 @@ const styles = StyleSheet.create({
   row: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
   word: { fontSize: 16, fontWeight: '700', fontFamily: fonts.heading },
   syn: { borderRadius: 99, paddingHorizontal: 9, paddingVertical: 2, fontSize: 11, overflow: 'hidden' },
+  meta: { flexDirection: 'row', alignItems: 'center', gap: 4, minWidth: 0, flexShrink: 1 },
 });

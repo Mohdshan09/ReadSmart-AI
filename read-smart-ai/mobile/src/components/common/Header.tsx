@@ -1,7 +1,9 @@
 import { router } from 'expo-router';
+import { ArrowLeft } from 'lucide-react-native';
 import type { ReactNode } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { useTheme } from '@/hooks/useTheme';
+import { islandSoft } from '@/theme/shape';
 import { fonts } from '@/theme/typography';
 
 type Props = { title: string; subtitle?: string; back?: boolean; right?: ReactNode };
@@ -18,10 +20,10 @@ export function Header({ title, subtitle, back, right }: Props) {
   };
 
   return (
-    <View style={[styles.bar, { backgroundColor: t.card, borderBottomColor: t.border }]}>
+    <View style={[styles.bar, islandSoft, { backgroundColor: t.card, borderBottomColor: t.border }]}>
       {back && (
         <Pressable onPress={handleBack} hitSlop={12}>
-          <Text style={{ color: t.accent, fontSize: 22 }}>←</Text>
+          <ArrowLeft color={t.accent} size={22} strokeWidth={2.25} />
         </Pressable>
       )}
       <View style={{ flex: 1, minWidth: 0 }}>
@@ -42,5 +44,5 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     borderBottomWidth: 1,
   },
-  title: { fontSize: 15, fontWeight: '800', fontFamily: fonts.heading },
+  title: { fontSize: 18, fontWeight: '800', fontFamily: fonts.heading },
 });

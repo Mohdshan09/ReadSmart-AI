@@ -1,9 +1,13 @@
 import { Platform } from 'react-native';
 
-// System serif fonts for now. To use Playfair Display + Lora later:
-// npx expo install @expo-google-fonts/playfair-display @expo-google-fonts/lora
-// then load them in src/app/_layout.tsx and swap the names here.
+// Excalidraw-inspired type: a hand-drawn font for headings/titles/buttons
+// (loaded in src/app/_layout.tsx via @expo-google-fonts/patrick-hand), and a
+// clean system sans for body/reading text so long passages stay legible.
 export const fonts = {
-  heading: Platform.select({ ios: 'Georgia', android: 'serif', default: 'serif' }),
-  body: Platform.select({ ios: 'Georgia', android: 'serif', default: 'serif' }),
+  heading: 'PatrickHand_400Regular',
+  body: Platform.select({
+    ios: 'System',
+    android: 'sans-serif',
+    default: 'system-ui, -apple-system, "Segoe UI", Roboto, sans-serif',
+  }),
 };

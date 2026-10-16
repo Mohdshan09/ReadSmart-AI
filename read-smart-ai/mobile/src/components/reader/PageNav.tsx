@@ -1,3 +1,4 @@
+import { ArrowLeft, ArrowRight } from 'lucide-react-native';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { ProgressBar } from '@/components/common/ProgressBar';
 import { useTheme } from '@/hooks/useTheme';
@@ -15,7 +16,8 @@ export function PageNav({ page, total, onChange }: Props) {
         onPress={() => onChange(page - 1)}
         style={[styles.btn, { backgroundColor: atStart ? t.border : t.accentL }]}
       >
-        <Text style={{ color: atStart ? t.sub : t.accent, fontWeight: '700' }}>← Prev</Text>
+        <ArrowLeft color={atStart ? t.sub : t.accent} size={16} strokeWidth={2.25} />
+        <Text style={{ color: atStart ? t.sub : t.accent, fontWeight: '700' }}>Prev</Text>
       </Pressable>
       <View style={{ flex: 1 }}>
         <ProgressBar value={(page + 1) / total} height={4} />
@@ -25,7 +27,8 @@ export function PageNav({ page, total, onChange }: Props) {
         onPress={() => onChange(page + 1)}
         style={[styles.btn, { backgroundColor: atEnd ? t.border : t.accent }]}
       >
-        <Text style={{ color: atEnd ? t.sub : '#fff', fontWeight: '700' }}>Next →</Text>
+        <Text style={{ color: atEnd ? t.sub : '#fff', fontWeight: '700' }}>Next</Text>
+        <ArrowRight color={atEnd ? t.sub : '#fff'} size={16} strokeWidth={2.25} />
       </Pressable>
     </View>
   );
@@ -33,5 +36,5 @@ export function PageNav({ page, total, onChange }: Props) {
 
 const styles = StyleSheet.create({
   bar: { flexDirection: 'row', alignItems: 'center', gap: 10, paddingHorizontal: 18, paddingVertical: 11, borderTopWidth: 1 },
-  btn: { borderRadius: 99, paddingHorizontal: 20, paddingVertical: 9 },
+  btn: { flexDirection: 'row', alignItems: 'center', gap: 6, borderRadius: 99, paddingHorizontal: 18, paddingVertical: 9 },
 });

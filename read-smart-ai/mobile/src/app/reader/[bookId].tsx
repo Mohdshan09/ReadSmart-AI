@@ -1,4 +1,5 @@
 import { router, useLocalSearchParams } from 'expo-router';
+import { Bookmark, Hand, TriangleAlert, X } from 'lucide-react-native';
 import { useCallback, useState } from 'react';
 import { ActivityIndicator, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -64,14 +65,16 @@ export default function ReaderScreen() {
             onPress={() => router.push('/vocab')}
             style={[styles.nbBtn, { backgroundColor: t.yellowL, borderColor: t.yellow + '44' }]}
           >
-            <Text style={{ color: t.yellow, fontSize: 11, fontWeight: '700' }}>📚 {notebook.words.length}</Text>
+            <Bookmark color={t.yellow} size={13} strokeWidth={2.25} />
+            <Text style={{ color: t.yellow, fontSize: 11, fontWeight: '700' }}>{notebook.words.length}</Text>
           </Pressable>
         }
       />
       <ProgressBar value={(pageIdx + 1) / book.pages.length} />
       <View style={[styles.hint, { backgroundColor: t.accentL }]}>
-        <Text style={{ fontSize: 12, color: t.accent, fontWeight: '500' }}>
-          👆 Kisi bhi word pe tap karo, seedha neeche meaning aayegi
+        <Hand color={t.accent} size={15} strokeWidth={2.25} />
+        <Text style={{ flex: 1, fontSize: 12, color: t.accent, fontWeight: '500' }}>
+          Kisi bhi word pe tap karo, seedha neeche meaning aayegi
         </Text>
       </View>
 
@@ -108,7 +111,9 @@ export default function ReaderScreen() {
               )}
               {lineActive && !loading && error && (
                 <Pressable onPress={close} style={[styles.error, { backgroundColor: t.dangerL }]}>
-                  <Text style={{ fontSize: 12, color: t.danger }}>⚠️ {error}  ✕</Text>
+                  <TriangleAlert color={t.danger} size={15} strokeWidth={2.25} />
+                  <Text style={{ flex: 1, fontSize: 12, color: t.danger }}>{error}</Text>
+                  <X color={t.danger} size={15} strokeWidth={2.25} />
                 </Pressable>
               )}
             </View>
@@ -122,11 +127,11 @@ export default function ReaderScreen() {
 }
 
 const styles = StyleSheet.create({
-  nbBtn: { borderWidth: 1, borderRadius: 99, paddingHorizontal: 12, paddingVertical: 5 },
-  hint: { paddingHorizontal: 16, paddingVertical: 7 },
+  nbBtn: { flexDirection: 'row', alignItems: 'center', gap: 5, borderWidth: 1, borderRadius: 99, paddingHorizontal: 12, paddingVertical: 5 },
+  hint: { flexDirection: 'row', alignItems: 'center', gap: 8, paddingHorizontal: 16, paddingVertical: 8 },
   page: { paddingHorizontal: 22, paddingTop: 24, paddingBottom: 40 },
   title: { fontFamily: fonts.heading, fontSize: 20, fontWeight: '800', textAlign: 'center', marginBottom: 5 },
   author: { textAlign: 'center', fontSize: 12, fontStyle: 'italic', marginBottom: 26 },
   loading: { flexDirection: 'row', alignItems: 'center', gap: 8, borderWidth: 1.5, borderRadius: 10, padding: 10, marginTop: 6, marginBottom: 10 },
-  error: { borderRadius: 10, padding: 10, marginTop: 6, marginBottom: 8 },
+  error: { flexDirection: 'row', alignItems: 'center', gap: 8, borderRadius: 10, padding: 10, marginTop: 6, marginBottom: 8 },
 });

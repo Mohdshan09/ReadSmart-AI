@@ -1,3 +1,4 @@
+import { Brain, Layers, List, type LucideIcon } from 'lucide-react-native';
 import { useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -8,12 +9,13 @@ import { Quiz } from '@/components/vocab/QuizQuestion';
 import { WordListItem } from '@/components/vocab/WordListItem';
 import { useTheme } from '@/hooks/useTheme';
 import { useNotebook } from '@/store/notebookStore';
+import { islandSoft } from '@/theme/shape';
 
 type View_ = 'list' | 'flashcard' | 'quiz';
-const VIEWS: [View_, string][] = [
-  ['list', '📋 List'],
-  ['flashcard', '🃏 Cards'],
-  ['quiz', '🧠 Quiz'],
+const VIEWS: [View_, LucideIcon, string][] = [
+  ['list', List, 'List'],
+  ['flashcard', Layers, 'Cards'],
+  ['quiz', Brain, 'Quiz'],
 ];
 
 export default function VocabScreen() {
@@ -30,12 +32,16 @@ export default function VocabScreen() {
   return (
     <SafeAreaView edges={['top']} style={{ flex: 1, backgroundColor: t.bg }}>
       <Header title="Word Notebook" subtitle={`${words.length} words saved`} />
-      <View style={[styles.tabs, { backgroundColor: t.card, borderBottomColor: t.border }]}>
-        {VIEWS.map(([v, label]) => (
-          <Pressable key={v} onPress={() => setView(v)} style={[styles.tab, view === v && { backgroundColor: t.accent }]}>
-            <Text style={{ fontSize: 12, fontWeight: '600', color: view === v ? '#fff' : t.sub }}>{label}</Text>
-          </Pressable>
-        ))}
+      <View style={[styles.tabs, islandSoft, { backgroundColor: t.card, borderBottomColor: t.border }]}>
+        {VIEWS.map(([v, Icon, label]) => {
+          const on = view === v;
+          return (
+            <Pressable key={v} onPress={() => setView(v)} style={[styles.tab, on && { backgroundColor: t.accent }]}>
+              <Icon color={on ? '#fff' : t.sub} size={14} strokeWidth={2.25} />
+              <Text style={{ fontSize: 12, fontWeight: '600', color: on ? '#fff' : t.sub }}>{label}</Text>
+            </Pressable>
+          );
+        })}
       </View>
 
       <ScrollView contentContainerStyle={{ padding: 16, gap: 9 }} keyboardShouldPersistTaps="handled">
@@ -70,6 +76,6 @@ export default function VocabScreen() {
 
 const styles = StyleSheet.create({
   tabs: { flexDirection: 'row', gap: 6, paddingHorizontal: 14, paddingVertical: 8, borderBottomWidth: 1 },
-  tab: { borderRadius: 99, paddingHorizontal: 13, paddingVertical: 5 },
+  tab: { flexDirection: 'row', alignItems: 'center', gap: 5, borderRadius: 99, paddingHorizontal: 13, paddingVertical: 6 },
   search: { borderWidth: 1, borderRadius: 10, paddingHorizontal: 13, paddingVertical: 10, fontSize: 13, marginBottom: 4 },
 });

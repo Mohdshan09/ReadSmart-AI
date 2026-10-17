@@ -9,6 +9,7 @@ import {
   rotateRefreshToken,
   verifyPassword,
 } from '../services/auth.service.js';
+import { seedSampleBooks } from '../services/library.service.js';
 import { HttpError } from '../utils/httpError.js';
 
 export const authRouter = Router();
@@ -35,6 +36,7 @@ authRouter.post('/register', async (req, res, next) => {
     const user = await prisma.user.create({
       data: { email, passwordHash: await hashPassword(password), displayName: displayName ?? null },
     });
+    await seedSampleBooks(user.id);
     const tokens = await issueTokens(user.id);
     res.status(201).json({ user: publicUser(user), ...tokens });
   } catch (err) {

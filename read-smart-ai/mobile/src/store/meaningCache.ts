@@ -11,6 +11,7 @@ export const cacheKey = (word: string, line: string) =>
 type CacheState = {
   entries: Record<string, WordMeaning>;
   put: (key: string, value: WordMeaning) => void;
+  clear: () => void;
 };
 
 export const useMeaningCache = create<CacheState>()(
@@ -18,6 +19,8 @@ export const useMeaningCache = create<CacheState>()(
     (set) => ({
       entries: {},
       put: (key, value) => set((s) => ({ entries: { ...s.entries, [key]: value } })),
+      // Cleared on logout so one account's lookups aren't visible to the next.
+      clear: () => set({ entries: {} }),
     }),
     { name: 'meaning-cache', storage: persistStorage }
   )

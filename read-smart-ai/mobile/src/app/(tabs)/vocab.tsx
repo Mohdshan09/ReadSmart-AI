@@ -4,6 +4,7 @@ import { Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { EmptyState } from '@/components/common/EmptyState';
 import { Header } from '@/components/common/Header';
+import { Loader } from '@/components/common/Loader';
 import { Flashcards } from '@/components/vocab/Flashcard';
 import { Quiz } from '@/components/vocab/QuizQuestion';
 import { WordListItem } from '@/components/vocab/WordListItem';
@@ -21,6 +22,7 @@ const VIEWS: [View_, LucideIcon, string][] = [
 export default function VocabScreen() {
   const { t } = useTheme();
   const { words, remove } = useNotebook();
+  const loaded = useNotebook((s) => s.loaded);
   const [view, setView] = useState<View_>('list');
   const [search, setSearch] = useState('');
 
@@ -54,7 +56,9 @@ export default function VocabScreen() {
               placeholderTextColor={t.sub}
               style={[styles.search, { backgroundColor: t.card, borderColor: t.border, color: t.text }]}
             />
-            {filtered.length === 0 ? (
+            {!loaded ? (
+              <Loader variant="card" label="Words load ho rahe hain…" />
+            ) : filtered.length === 0 ? (
               <EmptyState
                 message={words.length === 0 ? 'Abhi koi word save nahi hua. Reader mein words pe tap karo!' : 'Koi match nahi mila.'}
               />

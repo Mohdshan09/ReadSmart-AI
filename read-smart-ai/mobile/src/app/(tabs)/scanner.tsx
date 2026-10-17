@@ -1,14 +1,16 @@
 import * as ImagePicker from 'expo-image-picker';
 import { Camera, Image as ImageIcon } from 'lucide-react-native';
 import { useMemo, useState } from 'react';
-import { ActivityIndicator, Image, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Image, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Header } from '@/components/common/Header';
+import { Loader } from '@/components/common/Loader';
 import { DetailCard } from '@/components/reader/DetailCard';
 import { useTheme } from '@/hooks/useTheme';
 import { getMeaning } from '@/services/meaning';
 import { scanImage } from '@/services/scanner';
 import { useNotebook } from '@/store/notebookStore';
+import { toast } from '@/store/toastStore';
 import { island, islandSoft } from '@/theme/shape';
 import type { WordMeaning } from '@/types';
 
@@ -23,7 +25,6 @@ export default function ScannerScreen() {
   const [selectedWord, setSelectedWord] = useState<string | null>(null);
   const [meaning, setMeaning] = useState<WordMeaning | null>(null);
   const [meaningLoading, setMeaningLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
   const words = useMemo(() => text.split(/(\s+)/), [text]);
 
   const processAsset = async (asset: ImagePicker.ImagePickerAsset) => {
@@ -31,44 +32,51 @@ export default function ScannerScreen() {
     setText('');
     setSelectedWord(null);
     setMeaning(null);
-    setError(null);
     setScanning(true);
     try {
       const result = await scanImage(asset.uri, asset.mimeType, asset.fileName);
       setText(result.text);
+      if (result.text.trim()) toast.success('Text scan ho gaya! Kisi word pe tap karo.');
+      else toast.info('Is photo me koi text nahi mila. Clear photo try karo.');
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Photo scan nahi ho saka. Dobara try karo.');
+      toast.error(err instanceof Error ? err.message : 'Photo scan nahi ho saka. Dobara try karo.');
     } finally {
       setScanning(false);
     }
   };
 
   const takePhoto = async () => {
-    setError(null);
-    const permission = await ImagePicker.requestCameraPermissionsAsync();
-    if (!permission.granted) {
-      setError('Camera permission allow karo, phir photo le sakte ho.');
-      return;
+    try {
+      const permission = await ImagePicker.requestCameraPermissionsAsync();
+      if (!permission.granted) {
+        toast.error('Camera permission allow karo, phir photo le sakte ho.');
+        return;
+      }
+      const result = await ImagePicker.launchCameraAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        quality: 0.75,
+      });
+      if (!result.canceled) await processAsset(result.assets[0]);
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : 'Camera open nahi ho paaya. Dobara try karo.');
     }
-    const result = await ImagePicker.launchCameraAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.Images,
-      quality: 0.75,
-    });
-    if (!result.canceled) await processAsset(result.assets[0]);
   };
 
   const choosePhoto = async () => {
-    setError(null);
-    const permission = await ImagePicker.requestMediaLibraryPermissionsAsync();
-    if (!permission.granted) {
-      setError('Photo library permission allow karo, phir image choose kar sakte ho.');
-      return;
+    try {
+      const permission = await ImagePicker.requestMediaLibraryPermissionsAsync();
+      if (!permission.granted) {
+        toast.error('Photo library permission allow karo, phir image choose kar sakte ho.');
+        return;
+      }
+      const result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        quality: 0.75,
+      });
+      if (!result.canceled) await processAsset(result.assets[0]);
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : 'Photo library open nahi ho paayi. Dobara try karo.');
     }
-    const result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.Images,
-      quality: 0.75,
-    });
-    if (!result.canceled) await processAsset(result.assets[0]);
   };
 
   const selectWord = async (rawWord: string) => {
@@ -76,12 +84,11 @@ export default function ScannerScreen() {
     if (!word || scanning || meaningLoading) return;
     setSelectedWord(word);
     setMeaning(null);
-    setError(null);
     setMeaningLoading(true);
     try {
       setMeaning(await getMeaning(word, text, text));
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Translation load nahi hui. Dobara word select karo.');
+      toast.error(err instanceof Error ? err.message : 'Translation load nahi hui. Dobara word select karo.');
     } finally {
       setMeaningLoading(false);
     }
@@ -110,14 +117,7 @@ export default function ScannerScreen() {
 
         {imageUri ? <Image source={{ uri: imageUri }} style={[styles.preview, { backgroundColor: t.accentL }]} resizeMode="cover" /> : null}
 
-        {scanning && (
-          <View style={[styles.status, { backgroundColor: t.card, borderColor: t.border }]}>
-            <ActivityIndicator color={t.accent} />
-            <Text style={{ color: t.accent, fontWeight: '600' }}>Photo se text nikaal raha hai...</Text>
-          </View>
-        )}
-
-        {error ? <Text style={[styles.error, { backgroundColor: t.dangerL, color: t.danger }]}>{error}</Text> : null}
+        {scanning && <Loader variant="card" label="Photo se text nikaal raha hai..." />}
 
         {text && !scanning ? (
           <View style={[styles.textCard, island, { backgroundColor: t.card, borderColor: t.border }]}>
@@ -141,12 +141,7 @@ export default function ScannerScreen() {
           </View>
         ) : null}
 
-        {meaningLoading ? (
-          <View style={[styles.status, { backgroundColor: t.card, borderColor: t.border }]}>
-            <ActivityIndicator color={t.accent} />
-            <Text style={{ color: t.accent, fontWeight: '600' }}>Meaning dhundh raha hai...</Text>
-          </View>
-        ) : null}
+        {meaningLoading ? <Loader variant="card" label="Meaning dhundh raha hai..." /> : null}
 
         {meaning ? (
           <DetailCard
@@ -173,8 +168,6 @@ const styles = StyleSheet.create({
   primaryText: { color: '#fff', fontWeight: '700', fontSize: 13 },
   secondary: { flexDirection: 'row', alignItems: 'center', gap: 7, borderWidth: 1, borderRadius: 10, paddingHorizontal: 15, paddingVertical: 10 },
   preview: { width: '100%', height: 190, borderRadius: 14 },
-  status: { flexDirection: 'row', alignItems: 'center', gap: 9, borderWidth: 1, borderRadius: 12, padding: 13 },
-  error: { borderRadius: 10, padding: 12, fontSize: 12, lineHeight: 18, overflow: 'hidden' },
   textCard: { borderWidth: 1, borderRadius: 14, padding: 15 },
   label: { fontSize: 10, fontWeight: '800', letterSpacing: 0.8, marginBottom: 9 },
   scannedText: { fontSize: 17, lineHeight: 29 },

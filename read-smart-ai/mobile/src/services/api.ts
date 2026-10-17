@@ -25,6 +25,17 @@ export const API_URL =
 // unreachable, so a wrong IP / firewall shows up as a very slow failure.
 const DEFAULT_TIMEOUT_MS = 12000;
 
+// Carries the HTTP status so callers (e.g. the auth layer) can react to a 401
+// by refreshing the session, while still reading `.message` like any Error.
+export class ApiError extends Error {
+  readonly status: number;
+  constructor(message: string, status: number) {
+    super(message);
+    this.name = 'ApiError';
+    this.status = status;
+  }
+}
+
 export async function apiRequest<T>(
   path: string,
   init?: RequestInit,
@@ -36,14 +47,24 @@ export async function apiRequest<T>(
     const res = await fetch(`${API_URL}${path}`, { ...init, signal: controller.signal });
     const body = await res.json().catch(() => null);
     if (!res.ok) {
-      throw new Error(body?.error ?? `Server error (${res.status})`);
+      throw new ApiError(body?.error ?? `Server error (${res.status})`, res.status);
     }
     return body as T;
   } catch (err) {
     if (err instanceof Error && err.name === 'AbortError') {
-      throw new Error(
+      throw new ApiError(
         `Server se connect nahi hua (${API_URL}). Check karo: phone aur computer same Wi-Fi pe hain, ` +
-          `EXPO_PUBLIC_API_URL me sahi IP hai, aur server chal raha hai.`
+          `EXPO_PUBLIC_API_URL me sahi IP hai, aur server chal raha hai.`,
+        0
+      );
+    }
+    // A fetch that never reached the server (wrong IP, server down, offline)
+    // rejects with a TypeError — turn it into a clear, actionable message
+    // instead of a raw "Failed to fetch".
+    if (err instanceof TypeError) {
+      throw new ApiError(
+        `Server se connect nahi ho paaya (${API_URL}). Server chal raha hai aur net on hai, confirm karo.`,
+        0
       );
     }
     throw err;

@@ -1,10 +1,11 @@
 import { router, useLocalSearchParams } from 'expo-router';
 import { Bookmark, Hand, TriangleAlert, X } from 'lucide-react-native';
 import { useCallback, useState } from 'react';
-import { ActivityIndicator, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { EmptyState } from '@/components/common/EmptyState';
 import { Header } from '@/components/common/Header';
+import { Loader } from '@/components/common/Loader';
 import { ProgressBar } from '@/components/common/ProgressBar';
 import { DetailCard } from '@/components/reader/DetailCard';
 import { PageNav } from '@/components/reader/PageNav';
@@ -18,9 +19,9 @@ import { fonts } from '@/theme/typography';
 export default function ReaderScreen() {
   const { bookId } = useLocalSearchParams<{ bookId: string }>();
   const { t } = useTheme();
-  const { uploaded, progress, setPage } = useLibrary();
+  const { books, progress, setPage, loaded } = useLibrary();
   const notebook = useNotebook();
-  const book = findBook(bookId, uploaded);
+  const book = findBook(bookId, books);
 
   const [pageIdx, setPageIdx] = useState(() => progress[bookId] ?? 0);
   const page = book?.pages[Math.min(pageIdx, (book?.pages.length ?? 1) - 1)];
@@ -36,8 +37,8 @@ export default function ReaderScreen() {
   if (!book || !page) {
     return (
       <SafeAreaView style={{ flex: 1, backgroundColor: t.bg }}>
-        <Header title="Book not found" back />
-        <EmptyState message="Ye book nahi mili." />
+        <Header title={loaded ? 'Book not found' : 'Loading…'} back />
+        {loaded ? <EmptyState message="Ye book nahi mili." /> : <Loader variant="screen" label="Book khul rahi hai…" />}
       </SafeAreaView>
     );
   }
@@ -96,10 +97,7 @@ export default function ReaderScreen() {
                 onWordPress={onWordPress}
               />
               {lineActive && loading && (
-                <View style={[styles.loading, { backgroundColor: t.card, borderColor: t.accent + '30' }]}>
-                  <ActivityIndicator color={t.accent} />
-                  <Text style={{ fontSize: 13, color: t.accent, fontWeight: '500' }}>Meaning dhundh raha hai…</Text>
-                </View>
+                <Loader variant="card" label="Meaning dhundh raha hai…" style={{ marginTop: 6, marginBottom: 10 }} />
               )}
               {lineActive && !loading && data && (
                 <DetailCard
@@ -132,6 +130,5 @@ const styles = StyleSheet.create({
   page: { paddingHorizontal: 22, paddingTop: 24, paddingBottom: 40 },
   title: { fontFamily: fonts.heading, fontSize: 20, fontWeight: '800', textAlign: 'center', marginBottom: 5 },
   author: { textAlign: 'center', fontSize: 12, fontStyle: 'italic', marginBottom: 26 },
-  loading: { flexDirection: 'row', alignItems: 'center', gap: 8, borderWidth: 1.5, borderRadius: 10, padding: 10, marginTop: 6, marginBottom: 10 },
   error: { flexDirection: 'row', alignItems: 'center', gap: 8, borderRadius: 10, padding: 10, marginTop: 6, marginBottom: 8 },
 });

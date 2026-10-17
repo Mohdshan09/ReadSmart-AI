@@ -1,5 +1,5 @@
 import { Tabs } from 'expo-router';
-import { BookOpen, Camera, GraduationCap, House, type LucideIcon } from 'lucide-react-native';
+import { BookOpen, Camera, CircleUser, GraduationCap, House, type LucideIcon } from 'lucide-react-native';
 import type { ColorValue } from 'react-native';
 import { useTheme } from '@/hooks/useTheme';
 
@@ -35,6 +35,7 @@ export default function TabsLayout() {
       <Tabs.Screen name="read" options={{ title: 'Read', tabBarIcon: tabIcon(BookOpen) }} />
       <Tabs.Screen name="vocab" options={{ title: 'Vocab', tabBarIcon: tabIcon(GraduationCap) }} />
       <Tabs.Screen name="scanner" options={{ title: 'Scan', tabBarIcon: tabIcon(Camera) }} />
+      <Tabs.Screen name="profile" options={{ title: 'Profile', tabBarIcon: tabIcon(CircleUser) }} />
     </Tabs>
   );
 }

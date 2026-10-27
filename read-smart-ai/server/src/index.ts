@@ -15,6 +15,9 @@ import { scannerRouter } from './routes/scanner.routes.js';
 
 // Importing env validates that every required var is set (fails fast if not).
 const app = express();
+// Behind a host's reverse proxy (Render, Railway, Fly) X-Forwarded-For carries
+// the client IP; without this express-rate-limit rejects proxied requests.
+app.set('trust proxy', 1);
 app.use(cors());
 app.use(express.json({ limit: '100kb' }));
 

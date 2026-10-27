@@ -10,6 +10,6 @@ export default defineConfig({
   // Migrations should use a direct connection when the provider supplies one.
   // DATABASE_URL remains the runtime (possibly pooled) application connection.
   datasource: {
-    url: env('DATABASE_URL'),
+    url: process.env.DIRECT_URL?.trim() || env('DATABASE_URL'),
   },
 });
